@@ -12,10 +12,10 @@ import {
 
 
 export const registerUser = async (req, res, next) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, language } = req.body;
   try {
 
-    const data = await registerUserService({ name, email, password });
+    const data = await registerUserService({ name, email, password, language });
     generateResponse(res, 201, true, 'Registered user successfully!', data);
   }
 
@@ -23,6 +23,10 @@ export const registerUser = async (req, res, next) => {
 
     if (error.message === 'User already registered.') {
       generateResponse(res, 400, false, 'User already registered', null);
+    }
+
+    else if (error.message === 'Invalid language selection') {
+      generateResponse(res, 400, false, 'Invalid language selection', null);
     }
 
     else {
@@ -33,10 +37,10 @@ export const registerUser = async (req, res, next) => {
 
 
 export const loginUser = async (req, res, next) => {
-  const { email, password } = req.body;
+  const { email, password, language } = req.body;
 
   try {
-    const data = await loginUserService({ email, password })
+    const data = await loginUserService({ email, password, language })
     generateResponse(res, 200, true, 'Login successful', data);
   }
 
@@ -51,6 +55,10 @@ export const loginUser = async (req, res, next) => {
 
     else if (error.message === 'Invalid password') {
       generateResponse(res, 400, false, 'Invalid password', null);
+    }
+
+    else if (error.message === 'Invalid language selection') {
+      generateResponse(res, 400, false, 'Invalid language selection', null);
     }
 
     else {

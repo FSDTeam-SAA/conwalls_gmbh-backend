@@ -67,13 +67,19 @@ const adminMiddleware = (req, res, next) => {
 const userAdminMiddleware = (req, res, next) => {
   const { role } = req.user || {};
 
-  if (![RoleType.USER, RoleType.ADMIN].includes(role))
- {
-    return generateResponse(res, 403, false, 'User, Admin or Seller access only', null);
+  const allowedRoles = [
+    RoleType.USER,
+    RoleType.ADMIN,
+    RoleType.SELLER,
+    RoleType.TRAINER,
+    RoleType.PARTICIPANT
+  ];
+
+  if (!allowedRoles.includes(role)) {
+    return generateResponse(res, 403, false, 'User, Admin, Seller, Trainer or Participant access only', null);
   }
   next();
 };
 
 
 export{ userMiddleware, adminMiddleware,  userAdminMiddleware };
-

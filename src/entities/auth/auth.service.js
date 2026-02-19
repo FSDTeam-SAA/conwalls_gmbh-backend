@@ -4,37 +4,54 @@ import { refreshTokenSecrete, emailExpires } from '../../core/config/config.js';
 import sendEmail from '../../lib/sendEmail.js';
 import verificationCodeTemplate from '../../lib/emailTemplates.js';
 
+const SUPPORTED_LANGUAGES = ['english', 'germany'];
 
 export const registerUserService = async ({
   name,
   email,
-  password
+  password,
+  language
 }) => {
   const existingUser = await User.findOne({ email });
   if (existingUser) throw new Error('User already registered.');
+
+  const normalizedLanguage = language ? language.toLowerCase() : 'english';
+  if (language && !SUPPORTED_LANGUAGES.includes(normalizedLanguage)) {
+    throw new Error('Invalid language selection');
+  }
 
   const newUser = new User({
     name,
     email,
     password,
+    language: normalizedLanguage
   });
 
   const user = await newUser.save();
 
-  const { _id, role, profileImage } = user;
-  return { _id, name, email, role,  profileImage };
+  const { _id, role, profileImage, language: savedLanguage } = user;
+  return { _id, name, email, role, profileImage, language: savedLanguage };
 };
 
 
-export const loginUserService = async ({ email, password }) => {
+export const loginUserService = async ({ email, password, language }) => {
   if (!email || !password) throw new Error('Email and password are required');
 
-  const user = await User.findOne({ email }).select("_id firstName lastName email role profileImage");
+  const user = await User.findOne({ email }).select("_id firstName lastName email role profileImage language");
 
   if (!user) throw new Error('User not found');
 
   const isMatch = await user.comparePassword(user._id, password);
   if (!isMatch) throw new Error('Invalid password');
+
+  const normalizedLanguage = language ? language.toLowerCase() : null;
+  if (normalizedLanguage && !SUPPORTED_LANGUAGES.includes(normalizedLanguage)) {
+    throw new Error('Invalid language selection');
+  }
+
+  if (normalizedLanguage) {
+    user.language = normalizedLanguage;
+  }
 
   const payload = { _id: user._id, role: user.role };
 

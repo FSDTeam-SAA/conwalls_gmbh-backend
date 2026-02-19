@@ -30,7 +30,13 @@ const UserSchema = new mongoose.Schema(
     role: {
       type: String,
       default: RoleType.USER,
-      enum: [RoleType.USER, RoleType.ADMIN],
+      enum: [
+        RoleType.USER,
+        RoleType.ADMIN,
+        RoleType.SELLER,
+        RoleType.TRAINER,
+        RoleType.PARTICIPANT
+      ],
     },
 
     stripeAccountId: { type: String, default: null },
@@ -75,7 +81,11 @@ const UserSchema = new mongoose.Schema(
     hasActiveSubscription: { type: Boolean, default: false },
     subscriptionExpireDate: { type: Date, default: null },
     blockedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-    language: { type: String, default: 'en' }
+    language: {
+      type: String,
+      enum: ['english', 'germany'],
+      default: 'english'
+    }
   },
   { timestamps: true }
 );
