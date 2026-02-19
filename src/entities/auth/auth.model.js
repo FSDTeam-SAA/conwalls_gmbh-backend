@@ -39,6 +39,18 @@ const UserSchema = new mongoose.Schema(
       ],
     },
 
+    createdBy: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'User',
+  default: null
+},
+updatedBy: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'User',
+  default: null
+},
+
+
     stripeAccountId: { type: String, default: null },
 
     bio: { type: String, default: '' },
@@ -86,6 +98,8 @@ const UserSchema = new mongoose.Schema(
       enum: ['english', 'germany'],
       default: 'english'
     }
+
+    
   },
   { timestamps: true }
 );
