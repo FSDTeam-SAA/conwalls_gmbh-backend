@@ -3,7 +3,7 @@ import RoleType from '../../lib/types.js';
 import User from '../auth/auth.model.js';
 import sendEmail from '../../lib/sendEmail.js';
 
-const ALLOWED_CREATE_ROLES = [RoleType.TRAINER, RoleType.PARTICIPANT];
+const ALLOWED_CREATE_ROLES = [RoleType.TRAINER];
 
 const buildCredentialEmailHtml = ({ name, email, password, role }) => {
   return `
