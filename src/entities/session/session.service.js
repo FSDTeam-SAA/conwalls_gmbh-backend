@@ -11,6 +11,22 @@ export const submitInsightEngine = async ({ createdBy, payload }) => {
   return doc;
 };
 
+export const getParticipantOwnProjectsListService = async ({ page = 1, limit = 10, search, date, participantId }) => {
+  const filter = createFilter(search, date);
+  filter.createdBy = participantId;
+  const total = await InsightEngine.countDocuments(filter);
+
+  const items = await InsightEngine.find(filter)
+    .select("-__v")
+    .sort({ createdAt: -1 })
+    .skip((page - 1) * limit)
+    .limit(limit);
+
+  const paginationInfo = createPaginationInfo(page, limit, total);
+
+  return { items, paginationInfo };
+}
+
 export const getAllInsightEngines = async ({ page = 1, limit = 10, search, date }) => {
   const filter = createFilter(search, date);
 

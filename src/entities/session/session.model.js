@@ -6,7 +6,7 @@ const stakeholderSchema = new mongoose.Schema(
 
     roleType: {
       type: String,
-      enum: ["OPINION_LEADER", "SUPPORTER", "FOLLOWER", "NEUTRAL", "CRITICS", "REFUSERS"],
+      // enum: ["OPINION_LEADER", "SUPPORTER", "FOLLOWER", "NEUTRAL", "CRITICS", "REFUSERS"],
       default: "NEUTRAL",
     },
 
@@ -26,24 +26,24 @@ const stakeholderSchema = new mongoose.Schema(
       {
         category: {
           type: String,
-          enum: ["COMMUNICATION", "INVOLVEMENT", "RECOGNITION"],
-          required: true,
+          // enum: ["COMMUNICATION", "INVOLVEMENT", "RECOGNITION"],
+          // required: true,
         },
         type: {
           type: String,
-          enum: [
-            "PRESENTATION",
-            "NEWSLETTER",
-            "TOWNHALL_MEETING",
-            "INTRANET_ARTICLE",
-            "WORKSHOP",
-            "COACHING",
-            "LEARNING_PLATFORM",
-            "CONVERSATION",
-            "QA_SESSION",
-            "OTHERS",
-          ],
-          required: true,
+          // enum: [
+          //   "PRESENTATION",
+          //   "NEWSLETTER",
+          //   "TOWNHALL_MEETING",
+          //   "INTRANET_ARTICLE",
+          //   "WORKSHOP",
+          //   "COACHING",
+          //   "LEARNING_PLATFORM",
+          //   "CONVERSATION",
+          //   "QA_SESSION",
+          //   "OTHERS",
+          // ],
+          // required: true,
         },
         name: { type: String, required: true, trim: true },
         startWeeks: { type: Number, default: 0, min: 0 },
@@ -61,7 +61,7 @@ const insightEngineSchema = new mongoose.Schema(
     organization: { type: String, default: "", trim: true },
 
     // Project
-    projectTitle: { type: String, required: true, trim: true },
+    projectTitle: { type: String, trim: true },
     kickOffDate: { type: Date, default: null },
 
     // System forms

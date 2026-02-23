@@ -12,10 +12,10 @@ import {
 
 
 export const registerUser = async (req, res, next) => {
-  const { name, email, password, language } = req.body;
+  const { name, email, password, language, role } = req.body;
   try {
 
-    const data = await registerUserService({ name, email, password, language });
+    const data = await registerUserService({ name, email, password, language, role });
     generateResponse(res, 201, true, 'Registered user successfully!', data);
   }
 

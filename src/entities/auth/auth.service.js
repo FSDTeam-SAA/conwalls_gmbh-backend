@@ -6,33 +6,88 @@ import verificationCodeTemplate from '../../lib/emailTemplates.js';
 
 const SUPPORTED_LANGUAGES = ['english', 'germany'];
 
+// export const registerUserService = async ({
+//   name,
+//   email,
+//   password,
+//   language,
+//   trainerId,
+//   role
+// }) => {
+//   const existingUser = await User.findOne({ email });
+//   if (existingUser) throw new Error('User already registered.');
+
+//   const normalizedLanguage = language ? language.toLowerCase() : 'english';
+//   if (language && !SUPPORTED_LANGUAGES.includes(normalizedLanguage)) {
+//     throw new Error('Invalid language selection');
+//   }
+
+//   const newUser = new User({
+//     name,
+//     email,
+//     password,
+//     language: normalizedLanguage,
+//     createdBy: trainerId || null,
+//     role: role === "TRAINER" ? role: "PARTICIPANT"
+//   });
+
+//   const user = await newUser.save();
+
+//   const { _id, role, profileImage, language: savedLanguage } = user;
+//   return { _id, name, email, role, profileImage, language: savedLanguage };
+// };
+const ALLOWED_ROLES = ['PARTICIPANT', 'TRAINER', 'ADMIN'];
+
 export const registerUserService = async ({
   name,
   email,
   password,
-  language
+  language,
+  trainerId,
+  role
 }) => {
-  const existingUser = await User.findOne({ email });
+
+  if (!name || !email || !password) {
+    throw new Error('Name, email and password are required');
+  }
+
+  const normalizedEmail = email.toLowerCase().trim();
+
+  const existingUser = await User.findOne({ email: normalizedEmail });
   if (existingUser) throw new Error('User already registered.');
 
-  const normalizedLanguage = language ? language.toLowerCase() : 'english';
+  const normalizedLanguage = language?.toLowerCase().trim() || 'english';
+
   if (language && !SUPPORTED_LANGUAGES.includes(normalizedLanguage)) {
     throw new Error('Invalid language selection');
   }
+  const safeRole =
+    role && ALLOWED_ROLES.includes(role) && role !== 'ADMIN'
+      ? role
+      : 'PARTICIPANT';
 
   const newUser = new User({
-    name,
-    email,
+    name: name.trim(),
+    email: normalizedEmail,
     password,
-    language: normalizedLanguage
+    language: normalizedLanguage,
+    createdBy: trainerId || null,
+    role: safeRole
   });
 
   const user = await newUser.save();
 
-  const { _id, role, profileImage, language: savedLanguage } = user;
-  return { _id, name, email, role, profileImage, language: savedLanguage };
-};
+  const { _id, role: savedRole, profileImage, language: savedLanguage } = user;
 
+  return {
+    _id,
+    name: user.name,
+    email: user.email,
+    role: savedRole,
+    profileImage,
+    language: savedLanguage
+  };
+};
 
 export const loginUserService = async ({ email, password, language }) => {
   if (!email || !password) throw new Error('Email and password are required');
