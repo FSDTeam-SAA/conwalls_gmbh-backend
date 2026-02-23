@@ -5,6 +5,7 @@ import {
   getInsightEngineById,
   updateInsightEngine,
   deleteInsightEngine,
+  getParticipantOwnProjectsListService
 } from "./session.service.js";
 
 
@@ -12,7 +13,7 @@ export const submitInsightEngineController = async (req, res) => {
   try {
     const createdBy = req.user?._id || null;
     const payload = req.body;
-
+  
     const data = await submitInsightEngine({ createdBy, payload });
     generateResponse(res, 201, true, "Insight Engine submitted successfully", data);
   } catch (error) {
@@ -41,6 +42,31 @@ export const getAllInsightEngineController = async (req, res) => {
     });
   } catch (error) {
     generateResponse(res, 500, false, "Failed to fetch Insight Engine list", null);
+  }
+};
+
+export const getParticipantOwnProjectsList = async (req, res) => {
+  try {
+    const participantId = req.user?._id;
+    if (!participantId) {
+      return generateResponse(res, 400, false, "Participant ID is required", null);
+    }
+    const { page, limit, search, date } = req.query;
+
+    const { items, paginationInfo } = await getParticipantOwnProjectsListService({  
+      page,
+      limit,
+      search,
+      date,
+      participantId,
+    });
+
+    generateResponse(res, 200, true, "Participant's Insight Engine list fetched successfully", {
+      items,
+      paginationInfo,
+    });
+  } catch (error) {
+    generateResponse(res, 500, false, "Failed to fetch participant's Insight Engine list", null);
   }
 };
 
