@@ -84,10 +84,11 @@ export const getSingleInsightEngineController = async (req, res) => {
 
 export const updateInsightEngineController = async (req, res) => {
   try {
+    const creatorId = req.user?._id;
     const { id } = req.params;
     const payload = req.body;
 
-    const updated = await updateInsightEngine({ id, payload });
+    const updated = await updateInsightEngine({ id, payload, creatorId });
     generateResponse(res, 200, true, "Insight Engine updated successfully", updated);
   } catch (error) {
     const status =
