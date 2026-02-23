@@ -49,11 +49,18 @@ export const getInsightEngineById = async (id) => {
   return item;
 };
 
-export const updateInsightEngine = async ({ id, payload }) => {
+export const updateInsightEngine = async ({ id, payload, creatorId }) => {
   if (!payload || Object.keys(payload).length === 0) {
     throw new Error("Update payload is required");
   }
 
+  const existing = await InsightEngine.findById(id);
+  if (!existing) {
+    throw new Error("InsightEngine not found");
+  }
+  if (creatorId && existing.createdBy?.toString() !== creatorId.toString()) {
+    throw new Error("Unauthorized: You can only update your own InsightEngine");
+  }
   const updated = await InsightEngine.findByIdAndUpdate(id, payload, {
     new: true,
     runValidators: true,
