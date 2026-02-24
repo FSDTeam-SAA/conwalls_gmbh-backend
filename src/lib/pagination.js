@@ -15,6 +15,7 @@ export const createFilter = (search, date) => {
 export const createPaginationInfo = (page, limit, totalData) => ({
   currentPage: page,
   totalPages: Math.ceil(totalData / limit),
+  limit: limit,
   totalData,
   hasNextPage: page * limit < totalData,
   hasPrevPage: page > 1,

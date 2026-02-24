@@ -2,10 +2,11 @@ import User from './auth.model.js';
 import jwt from 'jsonwebtoken';
 import { refreshTokenSecrete, emailExpires } from '../../core/config/config.js';
 import sendEmail from '../../lib/sendEmail.js';
-import verificationCodeTemplate from '../../lib/emailTemplates.js';
+import verificationCodeTemplate, { getWelcomeUserTemplate } from '../../lib/emailTemplates.js';
+import { frontendURL } from '../../core/config/config.js';
 
 const SUPPORTED_LANGUAGES = ['english', 'germany'];
-
+const WEBSITE_URL = frontendURL;
 // export const registerUserService = async ({
 //   name,
 //   email,
@@ -66,6 +67,8 @@ export const registerUserService = async ({
       ? role
       : 'PARTICIPANT';
 
+  const rawPassword = password;
+
   const newUser = new User({
     name: name.trim(),
     email: normalizedEmail,
@@ -76,6 +79,16 @@ export const registerUserService = async ({
   });
 
   const user = await newUser.save();
+  await sendEmail({
+    to: normalizedEmail,
+    subject: '🎉 Welcome! Your Account Has Been Created',
+    html: getWelcomeUserTemplate({
+      name: name.trim(),
+      email: normalizedEmail,
+      password: rawPassword,              // raw password before hashing (pass before save if you hash in model)
+      websiteUrl: WEBSITE_URL,
+    }),
+  });
 
   const { _id, role: savedRole, profileImage, language: savedLanguage } = user;
 
