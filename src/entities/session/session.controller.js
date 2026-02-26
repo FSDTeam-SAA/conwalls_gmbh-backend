@@ -5,7 +5,8 @@ import {
   getInsightEngineById,
   updateInsightEngine,
   deleteInsightEngine,
-  getParticipantOwnProjectsListService
+  getParticipantOwnProjectsListService,
+  getStakeholdersAndMeasures
 } from "./session.service.js";
 
 
@@ -109,5 +110,32 @@ export const deleteInsightEngineController = async (req, res) => {
   } catch (error) {
     const status = error.message?.includes("not found") ? 404 : 500;
     generateResponse(res, status, false, error.message || "Failed to delete Insight Engine", null);
+  }
+};
+
+//stakeholder + measure
+export const getStakeholdersAndMeasuresController = async (req, res) => {
+  try {
+    const { insightEngineId } = req.params;
+
+    const data = await getStakeholdersAndMeasures(insightEngineId);
+
+    generateResponse(
+      res,
+      200,
+      true,
+      "Stakeholders and Measures fetched successfully",
+      data
+    );
+  } catch (error) {
+    const status = error.message?.includes("not found") ? 404 : 500;
+
+    generateResponse(
+      res,
+      status,
+      false,
+      error.message || "Failed to fetch Stakeholders and Measures",
+      null
+    );
   }
 };

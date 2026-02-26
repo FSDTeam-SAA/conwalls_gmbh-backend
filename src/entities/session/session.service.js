@@ -1,5 +1,7 @@
 import InsightEngine from "./session.model.js";
 import { createFilter, createPaginationInfo } from "../../lib/pagination.js";
+import mongoose from "mongoose";
+import Stakeholder from "../stackholder/stackholder.model.js";
 
 export const submitInsightEngine = async ({ createdBy, payload }) => {
 
@@ -74,4 +76,41 @@ export const deleteInsightEngine = async (id) => {
   const deleted = await InsightEngine.findByIdAndDelete(id);
   if (!deleted) throw new Error("InsightEngine not found");
   return true;
+};
+
+export const getStakeholdersAndMeasures = async (insightEngineId) => {
+  if (!mongoose.Types.ObjectId.isValid(insightEngineId)) {
+    throw new Error("Invalid insightEngineId");
+  }
+
+  // ✅ check insight engine exists
+  const insightEngine = await InsightEngine.findById(insightEngineId);
+  if (!insightEngine) {
+    throw new Error("InsightEngine not found");
+  }
+
+  // ✅ aggregate stakeholders + measures
+  const stakeholders = await Stakeholder.aggregate([
+    {
+      $match: {
+        insightEngineId: new mongoose.Types.ObjectId(insightEngineId),
+      },
+    },
+    {
+      $lookup: {
+        from: "measures",
+        localField: "_id",
+        foreignField: "stakeholderId",
+        as: "measures",
+      },
+    },
+    {
+      $sort: { createdAt: -1 },
+    },
+  ]);
+
+  return {
+    insightEngine,
+    stakeholders,
+  };
 };
