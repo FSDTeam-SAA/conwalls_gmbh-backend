@@ -5,6 +5,8 @@ import systemSettingRoutes from '../../entities/systemSetting/systemSetting.rout
 import { sessionRouter }  from '../../entities/session/session.route.js'; // import session routes
 import adminUserRoutes from "../../entities/adminUser/adminUser.routes.js";
 import { TrainerRouter } from '../../entities/trainer/trainer.route.js';
+import { measureRouter } from '../../entities/measure/measure.route.js';
+import { stakeholderRouter } from '../../entities/stackholder/stackholder.route.js';
 
 const router = express.Router();
 
@@ -14,5 +16,7 @@ router.use('/v1/system-setting', systemSettingRoutes);
 router.use('/v1/insight-engine', sessionRouter); // add this line for session routes
 router.use("/v1/admin/users", adminUserRoutes);
 router.use("/v1/trainer", TrainerRouter);
+router.use('/v1/measure', measureRouter)
+router.use('/v1/stakeholder', stakeholderRouter)
 
 export default router;
