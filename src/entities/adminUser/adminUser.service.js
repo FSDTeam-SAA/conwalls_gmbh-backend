@@ -46,6 +46,12 @@ export const adminCreateUserService = async (payload, adminId) => {
     throw err;
   }
 
+  if (!phone) {
+    const err = new Error('Phone is required');
+    err.statusCode = 400;
+    throw err;
+  }
+
   if (!password || String(password).length < 6) {
     const err = new Error('Password is required (min 6 chars)');
     err.statusCode = 400;
@@ -176,7 +182,13 @@ export const adminUpdateUserRoleService = async (userId, role, status, adminId, 
   }
 
   if (extras.phone !== undefined) {
-    updateFields.phone = String(extras.phone || '').trim();
+    const phone = String(extras.phone || '').trim();
+    if (!phone) {
+      const err = new Error('Phone is required');
+      err.statusCode = 400;
+      throw err;
+    }
+    updateFields.phone = phone;
   }
 
   if (extras.password !== undefined) {
