@@ -17,7 +17,7 @@ router.post("/", verifyToken, adminMiddleware, adminCreateUserController);
 router.get("/", verifyToken, adminMiddleware, adminListUsersController);
 router.get("/:id", verifyToken, adminMiddleware, adminGetSingleUserController);
 
-router.patch("/:id/role", verifyToken, adminMiddleware, adminUpdateUserRoleController);
+router.put("/:id", verifyToken, adminMiddleware, adminUpdateUserRoleController);
 router.delete("/:id", verifyToken, adminMiddleware, adminDeleteUserController);
 
 export default router;

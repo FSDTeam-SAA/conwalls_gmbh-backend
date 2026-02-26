@@ -14,7 +14,7 @@ router.use('/v1/auth', authRoutes);
 router.use('/v1/user', userRoutes);
 router.use('/v1/system-setting', systemSettingRoutes);
 router.use('/v1/insight-engine', sessionRouter); // add this line for session routes
-router.use("/v1/admin/users", adminUserRoutes);
+router.use("/v1/admin/trainer", adminUserRoutes);
 router.use("/v1/trainer", TrainerRouter);
 router.use('/v1/measure', measureRouter)
 router.use('/v1/stakeholder', stakeholderRouter)

@@ -38,6 +38,11 @@ const UserSchema = new mongoose.Schema(
         RoleType.PARTICIPANT
       ],
     },
+    status: {
+      type: String,
+      enum: ['active', 'inactive'],
+      default: 'active'
+    },
 
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
