@@ -46,7 +46,7 @@ export const connectTrainerToParticipant = async (req, res, next) => {
 
 export const getAllInsightEngineByUser = async (req, res) => {
   try {
-    const { participantId } = req.body;
+    const participantId = req.params.participantId;
     console.log("Participant ID from request:", participantId);
 
     if (!participantId) {
