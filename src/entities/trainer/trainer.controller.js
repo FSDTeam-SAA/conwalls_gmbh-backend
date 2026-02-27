@@ -2,7 +2,7 @@ import { generateResponse } from "../../lib/responseFormate.js";
 import User from "../auth/auth.model.js";
 import { registerUserService } from "../auth/auth.service.js";
 import { getParticipantOwnProjectsListService } from "../session/session.service.js";
-import { getAllParticipantTrainerBasedService } from "./trainer.service.js";
+import { getAllParticipantTrainerBasedService, updateTrainerFromParticipantService } from "./trainer.service.js";
 
 
 export const getAllParticipantTrainerBased = async (req, res) => {
@@ -103,5 +103,33 @@ export const removeTrainerFromParticipant = async (req, res) => {
   } catch (error) {
     console.error("Error removing trainer from participant:", error);
     generateResponse(res, 500, false, "Failed to remove trainer from participant", null);
+  }
+};
+export const updateTrainerFromParticipant = async (req, res) => {
+  try {
+    const trainerId = req.user?._id;
+    const participantId = req.body.participantId;
+
+    if (!trainerId) {
+      return generateResponse(res, 400, false, "Trainer ID is required", null);
+    }
+    if (!participantId) {
+      return generateResponse(res, 400, false, "Participant ID is required", null);
+    }
+
+    const participant = await updateTrainerFromParticipantService({ 
+      trainerId, 
+      participantId, 
+      data: req.body 
+    });
+
+    if (!participant) {
+      return generateResponse(res, 404, false, "Participant not found", null);
+    }
+
+    generateResponse(res, 200, true, "Trainer updated for participant successfully", participant);
+  } catch (error) {
+    console.error("Error updating trainer from participant:", error);
+    generateResponse(res, 500, false, "Failed to update trainer from participant", null);
   }
 };

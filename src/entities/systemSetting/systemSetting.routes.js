@@ -14,7 +14,7 @@ const router = Router();
 
 // Admin only
 router.get("/", verifyToken, adminMiddleware, getSystemSettingController);
-router.get("/:id", verifyToken, adminMiddleware, getSingleSystemSettingController);
+router.get("/:id", verifyToken, getSingleSystemSettingController);
 
 router.post("/", verifyToken, adminMiddleware, createSystemSettingController);
 
