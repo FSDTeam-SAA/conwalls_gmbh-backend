@@ -2,8 +2,10 @@
 import RoleType from '../../lib/types.js';
 import User from '../auth/auth.model.js';
 import sendEmail from '../../lib/sendEmail.js';
+import bcrypt from 'bcrypt';
 
 const ALLOWED_CREATE_ROLES = [RoleType.TRAINER];
+const ALLOWED_STATUSES = ['active', 'inactive'];
 
 const buildCredentialEmailHtml = ({ name, email, password, role }) => {
   return `
@@ -18,7 +20,7 @@ const buildCredentialEmailHtml = ({ name, email, password, role }) => {
         <p><b>Role:</b> ${role}</p>
       </div>
 
-      <p>Please login and change your password after first login.</p>
+      <p>Please login with the above credentials.</p>
       <p>Thanks</p>
     </div>
   `;
@@ -30,6 +32,7 @@ export const adminCreateUserService = async (payload, adminId) => {
   const phone = (payload?.phone || '').trim();
   const password = payload?.password;
   const role = payload?.role;
+  const status = payload?.status || 'active';
 
   if (!name) {
     const err = new Error('Full name is required');
@@ -39,6 +42,12 @@ export const adminCreateUserService = async (payload, adminId) => {
 
   if (!email) {
     const err = new Error('Email is required');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  if (!phone) {
+    const err = new Error('Phone is required');
     err.statusCode = 400;
     throw err;
   }
@@ -57,6 +66,12 @@ export const adminCreateUserService = async (payload, adminId) => {
     throw err;
   }
 
+  if (!ALLOWED_STATUSES.includes(status)) {
+    const err = new Error(`Status must be one of: ${ALLOWED_STATUSES.join(', ')}`);
+    err.statusCode = 400;
+    throw err;
+  }
+
   const existing = await User.findOne({ email }).lean();
   if (existing) {
     const err = new Error('Email already exists');
@@ -71,6 +86,7 @@ export const adminCreateUserService = async (payload, adminId) => {
     phone,
     password,
     role,
+    status,
     createdBy: adminId,
     updatedBy: adminId
   });
@@ -136,18 +152,105 @@ export const adminListUsersService = async ({
   };
 };
 
-export const adminUpdateUserRoleService = async (userId, role, adminId) => {
-  if (!role || !ALLOWED_CREATE_ROLES.includes(role)) {
-    const err = new Error(
-      `Role must be one of: ${ALLOWED_CREATE_ROLES.join(', ')}`
-    );
+export const adminUpdateUserRoleService = async (userId, role, status, adminId, extras = {}) => {
+  const updateFields = {};
+
+  if (extras.name !== undefined) {
+    const name = String(extras.name || '').trim();
+    if (!name) {
+      const err = new Error('Full name is required');
+      err.statusCode = 400;
+      throw err;
+    }
+    updateFields.name = name;
+  }
+
+  if (extras.email !== undefined) {
+    const email = String(extras.email || '').trim().toLowerCase();
+    if (!email) {
+      const err = new Error('Email is required');
+      err.statusCode = 400;
+      throw err;
+    }
+    const existing = await User.findOne({ email, _id: { $ne: userId } }).lean();
+    if (existing) {
+      const err = new Error('Email already exists');
+      err.statusCode = 409;
+      throw err;
+    }
+    updateFields.email = email;
+  }
+
+  if (extras.phone !== undefined) {
+    const phone = String(extras.phone || '').trim();
+    if (!phone) {
+      const err = new Error('Phone is required');
+      err.statusCode = 400;
+      throw err;
+    }
+    updateFields.phone = phone;
+  }
+
+  if (extras.password !== undefined) {
+    const password = extras.password;
+    if (!password || String(password).length < 6) {
+      const err = new Error('Password is required (min 6 chars)');
+      err.statusCode = 400;
+      throw err;
+    }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    updateFields.password = hashedPassword;
+  }
+
+  if (role !== undefined) {
+    if (!ALLOWED_CREATE_ROLES.includes(role)) {
+      const err = new Error(`Role must be one of: ${ALLOWED_CREATE_ROLES.join(', ')}`);
+      err.statusCode = 400;
+      throw err;
+    }
+    updateFields.role = role;
+  }
+
+  if (status !== undefined) {
+    if (!ALLOWED_STATUSES.includes(status)) {
+      const err = new Error(`Status must be one of: ${ALLOWED_STATUSES.join(', ')}`);
+      err.statusCode = 400;
+      throw err;
+    }
+    updateFields.status = status;
+  }
+
+  if (Object.keys(updateFields).length === 0) {
+    const err = new Error('At least one of name, email, phone, password, role or status is required');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  updateFields.updatedBy = adminId;
+
+  const updated = await User.findByIdAndUpdate(
+    userId,
+    { $set: updateFields },
+    { new: true }
+  )
+    .select(
+      '-password -refreshToken -otp -otpExpires -otpVerified -resetExpires -__v'
+    )
+    .lean();
+
+  return updated; // can be null
+};
+
+export const adminUpdateUserStatusService = async (userId, status, adminId) => {
+  if (!ALLOWED_STATUSES.includes(status)) {
+    const err = new Error(`Status must be one of: ${ALLOWED_STATUSES.join(', ')}`);
     err.statusCode = 400;
     throw err;
   }
 
   const updated = await User.findByIdAndUpdate(
     userId,
-    { $set: { role } },
+    { $set: { status, updatedBy: adminId } },
     { new: true }
   )
     .select(
