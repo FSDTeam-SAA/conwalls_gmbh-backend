@@ -18,3 +18,18 @@ export const getAllParticipantTrainerBasedService = async ({page = 1, limit = 10
 
   return { items, paginationInfo };
 };
+export const updateTrainerFromParticipantService = async ({ trainerId, participantId, data }) => {
+  const participant = await User.findById(participantId);
+  if (!participant) {
+    throw new Error("Participant not found");
+  }
+
+  return await User.findByIdAndUpdate(
+    participantId,
+    { ...data, createdBy: trainerId },
+    {
+      new: true,
+      runValidators: true,
+    }
+  ).select("-__v");
+};

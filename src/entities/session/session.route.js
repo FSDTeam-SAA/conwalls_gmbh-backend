@@ -15,7 +15,7 @@ const router = express.Router();
 
 router.post("/submit", verifyToken, submitInsightEngineController);
 router.get("/",  getAllInsightEngineController);
-router.get("/participant/projects", verifyToken, getParticipantOwnProjectsList);
+router.get("/participant/projects/:participantId", getParticipantOwnProjectsList);
 router.get("/stakeholders-measures/:insightEngineId", verifyToken, getStakeholdersAndMeasuresController);
 router.get("/:id",  getSingleInsightEngineController);
 router.put("/:id",  updateInsightEngineController);
