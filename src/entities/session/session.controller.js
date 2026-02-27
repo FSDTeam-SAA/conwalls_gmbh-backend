@@ -48,7 +48,7 @@ export const getAllInsightEngineController = async (req, res) => {
 
 export const getParticipantOwnProjectsList = async (req, res) => {
   try {
-    const participantId = req.params.participantId;
+    const participantId = req.user?._id;
     if (!participantId) {
       return generateResponse(res, 400, false, "Participant ID is required", null);
     }
