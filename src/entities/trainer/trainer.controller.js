@@ -133,3 +133,20 @@ export const updateTrainerFromParticipant = async (req, res) => {
     generateResponse(res, 500, false, "Failed to update trainer from participant", null);
   }
 };
+
+export const getParticipantIdBased = async (req, res) => {
+  try {
+    const participantId = req.params.participantId;
+    if (!participantId) {
+      return generateResponse(res, 400, false, "Participant ID is required", null);
+    }
+    const participant = await User.findById(participantId).select("-password -__v");
+    if (!participant) {
+      return generateResponse(res, 404, false, "Participant not found", null);
+    }
+    generateResponse(res, 200, true, "Participant fetched successfully", participant);
+  } catch (error) {
+    console.error("Error fetching participant:", error);
+    generateResponse(res, 500, false, "Failed to fetch participant", null);
+  }
+};
