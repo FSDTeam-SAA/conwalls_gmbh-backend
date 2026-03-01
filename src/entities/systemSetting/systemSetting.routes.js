@@ -5,7 +5,8 @@ import {
   getSingleSystemSettingController,
   createSystemSettingController,
   updateSystemSettingController,
-  deleteSystemSettingController
+  deleteSystemSettingController,
+  getFilteredHelpTextsController
 } from "./systemSetting.controller.js";
 
 import { verifyToken, adminMiddleware } from "../../core/middlewares/authMiddleware.js";
@@ -15,6 +16,8 @@ const router = Router();
 // Admin only
 router.get("/", verifyToken, getSystemSettingController);
 router.get("/:id",getSingleSystemSettingController);
+
+router.get("/:id/filtered-helptexts", getFilteredHelpTextsController);
 
 router.post("/", verifyToken, adminMiddleware, createSystemSettingController);
 

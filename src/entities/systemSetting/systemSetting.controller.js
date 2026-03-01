@@ -72,3 +72,39 @@ export const deleteSystemSettingController = async (req, res, next) => {
     next(error);
   }
 };
+
+
+export const getFilteredHelpTextsController = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const systemSetting = await getSystemSettingByIdService(id);
+
+    if (!systemSetting) {
+      return generateResponse(res, 404, false, "System setting not found", null);
+    }
+
+    const targetNames = [
+      "Pain point",
+      "Benefits",
+      "Objections/Concerns",
+      "Objection Handling",
+    ];
+
+    const helpTexts = Array.isArray(systemSetting.helpTexts)
+      ? systemSetting.helpTexts
+      : [];
+
+    const filtered = helpTexts.filter((item) => targetNames.includes(item?.name));
+
+    return generateResponse(
+      res,
+      200,
+      true,
+      "Filtered help texts fetched successfully",
+      filtered
+    );
+  } catch (error) {
+    next(error);
+  }
+};
