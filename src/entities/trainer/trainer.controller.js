@@ -40,6 +40,10 @@ export const connectTrainerToParticipant = async (req, res, next) => {
     }
 
     const { name, email, password, language, role } = req.body;
+    const participantId = await User.findOne({ email: email.toLowerCase().trim() });
+    if (participantId) {
+      return generateResponse(res, 400, false, "Participant with this email already exists", null);
+    }
     const data = await registerUserService({ name, email, password, language, trainerId, role });
     generateResponse(res, 201, true, 'Registered user successfully!', data);
 }
