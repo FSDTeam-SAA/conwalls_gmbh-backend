@@ -10,6 +10,13 @@ import {
   adminGetSingleUserService
 } from "./adminUser.service.js";
 
+const handleControllerError = (err, res, next) => {
+  if (err?.statusCode) {
+    return generateResponse(res, err.statusCode, false, err.message || "Error", null);
+  }
+  return next(err);
+};
+
 const formatUser = (user) => {
   if (!user) return user;
 
@@ -74,7 +81,7 @@ export const adminCreateUserController = async (req, res, next) => {
 
     return generateResponse(res, 201, true, "User created successfully", formatUser(user));
   } catch (err) {
-    next(err);
+    return handleControllerError(err, res, next);
   }
 };
 
@@ -114,7 +121,7 @@ export const adminUpdateUserRoleController = async (req, res, next) => {
 
     return generateResponse(res, 200, true, "User updated successfully", formatUser(updated));
   } catch (err) {
-    next(err);
+    return handleControllerError(err, res, next);
   }
 };
 
@@ -130,7 +137,7 @@ export const adminUpdateUserStatusController = async (req, res, next) => {
 
     return generateResponse(res, 200, true, "User status updated successfully", formatUser(updated));
   } catch (err) {
-    next(err);
+    return handleControllerError(err, res, next);
   }
 };
 
@@ -161,6 +168,6 @@ export const adminGetSingleUserController = async (req, res, next) => {
 
     return generateResponse(res, 200, true, "User fetched successfully", formatUser(user));
   } catch (error) {
-    next(error);
+    return handleControllerError(error, res, next);
   }
 };
