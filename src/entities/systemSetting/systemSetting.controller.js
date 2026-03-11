@@ -89,6 +89,8 @@ export const getFilteredHelpTextsController = async (req, res, next) => {
       "Benefits",
       "Objections/Concerns",
       "Objection Handling",
+      "callToAction"
+      
     ];
 
     const helpTexts = Array.isArray(systemSetting.helpTexts)
