@@ -15,6 +15,7 @@ const stakeholderSchema = new mongoose.Schema(
     },
     painPoint:           { type: String, default: "", trim: true },
     benefits:            { type: String, default: "", trim: true },
+    callToAction:        {type: String, default: "", trim: true},
     triggerEvaluation: {
       type: String,
       enum: ["LOW_POINTS", "HIGH_POINTS", ""],
