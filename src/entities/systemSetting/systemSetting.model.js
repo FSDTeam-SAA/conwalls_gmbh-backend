@@ -24,7 +24,7 @@ const SystemSettingSchema = new mongoose.Schema(
     roleTypes: { type: [NameOnlySchema], default: [] },
     categoryTypes: { type: [NameOnlySchema], default: [] },
     measureTypes: { type: [NameLangValuesSchema], default: [] },
-    triggerAiPrompt: { type: String, default: "" }
+    triggerAiPrompt: { type: [NameLangValuesSchema], default: [] }
   },
   { timestamps: true }
 );
