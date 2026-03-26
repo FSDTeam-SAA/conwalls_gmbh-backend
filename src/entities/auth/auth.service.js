@@ -7,36 +7,6 @@ import { frontendURL } from '../../core/config/config.js';
 
 const SUPPORTED_LANGUAGES = ['english', 'germany'];
 const WEBSITE_URL = frontendURL;
-// export const registerUserService = async ({
-//   name,
-//   email,
-//   password,
-//   language,
-//   trainerId,
-//   role
-// }) => {
-//   const existingUser = await User.findOne({ email });
-//   if (existingUser) throw new Error('User already registered.');
-
-//   const normalizedLanguage = language ? language.toLowerCase() : 'english';
-//   if (language && !SUPPORTED_LANGUAGES.includes(normalizedLanguage)) {
-//     throw new Error('Invalid language selection');
-//   }
-
-//   const newUser = new User({
-//     name,
-//     email,
-//     password,
-//     language: normalizedLanguage,
-//     createdBy: trainerId || null,
-//     role: role === "TRAINER" ? role: "PARTICIPANT"
-//   });
-
-//   const user = await newUser.save();
-
-//   const { _id, role, profileImage, language: savedLanguage } = user;
-//   return { _id, name, email, role, profileImage, language: savedLanguage };
-// };
 const ALLOWED_ROLES = ['PARTICIPANT', 'TRAINER', 'ADMIN'];
 
 export const registerUserService = async ({
@@ -79,16 +49,16 @@ export const registerUserService = async ({
   });
 
   const user = await newUser.save();
-  await sendEmail({
-    to: normalizedEmail,
-    subject: '🎉 Welcome! Your Account Has Been Created',
-    html: getWelcomeUserTemplate({
-      name: name.trim(),
-      email: normalizedEmail,
-      password: rawPassword,              // raw password before hashing (pass before save if you hash in model)
-      websiteUrl: WEBSITE_URL,
-    }),
-  });
+  // await sendEmail({
+  //   to: normalizedEmail,
+  //   subject: '🎉 Welcome! Your Account Has Been Created',
+  //   html: getWelcomeUserTemplate({
+  //     name: name.trim(),
+  //     email: normalizedEmail,
+  //     password: rawPassword,              // raw password before hashing (pass before save if you hash in model)
+  //     websiteUrl: WEBSITE_URL,
+  //   }),
+  // });
 
   const { _id, role: savedRole, profileImage, language: savedLanguage } = user;
 
@@ -98,7 +68,8 @@ export const registerUserService = async ({
     email: user.email,
     role: savedRole,
     profileImage,
-    language: savedLanguage
+    language: savedLanguage,
+    password:rawPassword
   };
 };
 
