@@ -2,6 +2,59 @@ import InsightEngine from "./session.model.js";
 import { createFilter, createPaginationInfo } from "../../lib/pagination.js";
 import mongoose from "mongoose";
 import Stakeholder from "../stackholder/stackholder.model.js";
+import SystemSetting from "../systemSetting/systemSetting.model.js";
+
+const buildLabelMap = (items = []) => {
+  const map = new Map();
+
+  items.forEach((item) => {
+    if (!item?.name) return;
+
+    map.set(item.name, {
+      de: item?.labels?.de || "",
+      en: item?.labels?.en || item?.name || "",
+    });
+  });
+
+  return map;
+};
+
+const getMeasureLocalizationMaps = async () => {
+  const systemSetting = await SystemSetting.findOne().lean();
+
+  if (!systemSetting) {
+    return {
+      categoryLabelMap: new Map(),
+      typeLabelMap: new Map(),
+    };
+  }
+
+  const categoryTypes = Array.isArray(systemSetting.categoryTypes)
+    ? systemSetting.categoryTypes
+    : [];
+
+  return {
+    categoryLabelMap: buildLabelMap(categoryTypes),
+    typeLabelMap: buildLabelMap(
+      categoryTypes.flatMap((category) =>
+        Array.isArray(category?.measureTypes) ? category.measureTypes : []
+      )
+    ),
+  };
+};
+
+const enrichMeasures = (measures = [], { categoryLabelMap, typeLabelMap }) =>
+  measures.map((measure) => ({
+    ...measure,
+    categoryLabels: categoryLabelMap.get(measure?.category) || {
+      de: "",
+      en: measure?.category || "",
+    },
+    typeLabels: typeLabelMap.get(measure?.type) || {
+      de: "",
+      en: measure?.type || "",
+    },
+  }));
 
 export const submitInsightEngine = async ({ createdBy, payload }) => {
 
@@ -90,7 +143,8 @@ export const getStakeholdersAndMeasures = async (insightEngineId) => {
   }
 
   // ✅ aggregate stakeholders + measures
-  const stakeholders = await Stakeholder.aggregate([
+  const [stakeholders, localizationMaps] = await Promise.all([
+    Stakeholder.aggregate([
     {
       $match: {
         insightEngineId: new mongoose.Types.ObjectId(insightEngineId),
@@ -107,10 +161,15 @@ export const getStakeholdersAndMeasures = async (insightEngineId) => {
     {
       $sort: { createdAt: -1 },
     },
+    ]),
+    getMeasureLocalizationMaps(),
   ]);
 
   return {
     insightEngine,
-    stakeholders,
+    stakeholders: stakeholders.map((stakeholder) => ({
+      ...stakeholder,
+      measures: enrichMeasures(stakeholder.measures, localizationMaps),
+    })),
   };
 };
