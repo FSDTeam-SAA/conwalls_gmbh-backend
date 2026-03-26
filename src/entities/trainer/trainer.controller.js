@@ -90,23 +90,26 @@ export const removeTrainerFromParticipant = async (req, res) => {
   try {
     const trainerId = req.user?._id;
     const participantId = req.body.participantId;
+
     if (!trainerId) {
       return generateResponse(res, 400, false, "Trainer ID is required", null);
     }
+
     if (!participantId) {
       return generateResponse(res, 400, false, "Participant ID is required", null);
     }
 
-    const result = await User.findById(participantId);
-    if (!result) {
+    // Delete participant directly from DB
+    const participant = await User.findByIdAndDelete(participantId);
+
+    if (!participant) {
       return generateResponse(res, 404, false, "Participant not found", null);
     }
-    result.createdBy = null;
-    await result.save();
-    generateResponse(res, 200, true, "Trainer removed from participant successfully", result);
+
+    generateResponse(res, 200, true, "Participant deleted successfully", participant);
   } catch (error) {
-    console.error("Error removing trainer from participant:", error);
-    generateResponse(res, 500, false, "Failed to remove trainer from participant", null);
+    console.error("Error deleting participant:", error);
+    generateResponse(res, 500, false, "Failed to delete participant", null);
   }
 };
 export const updateTrainerFromParticipant = async (req, res) => {
